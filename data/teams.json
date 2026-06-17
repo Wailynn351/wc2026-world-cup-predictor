@@ -1,0 +1,65 @@
+{
+  "tournament": "2026 FIFA World Cup",
+  "format": "48 teams, 12 groups of 4",
+  "teams": [
+    {"fifa_code": "CAN", "name": "Canada", "confederation": "CONCACAF", "group": "A"},
+    {"fifa_code": "MEX", "name": "Mexico", "confederation": "CONCACAF", "group": "A"},
+    {"fifa_code": "NED", "name": "Netherlands", "confederation": "UEFA", "group": "A"},
+    {"fifa_code": "CIV", "name": "Côte d'Ivoire", "confederation": "CAF", "group": "A"},
+
+    {"fifa_code": "USA", "name": "United States", "confederation": "CONCACAF", "group": "B"},
+    {"fifa_code": "ITA", "name": "Italy", "confederation": "UEFA", "group": "B"},
+    {"fifa_code": "KOR", "name": "South Korea", "confederation": "AFC", "group": "B"},
+    {"fifa_code": "CMR", "name": "Cameroon", "confederation": "CAF", "group": "B"},
+
+    {"fifa_code": "ARG", "name": "Argentina", "confederation": "CONMEBOL", "group": "C"},
+    {"fifa_code": "POR", "name": "Portugal", "confederation": "UEFA", "group": "C"},
+    {"fifa_code": "NGA", "name": "Nigeria", "confederation": "CAF", "group": "C"},
+    {"fifa_code": "QAT", "name": "Qatar", "confederation": "AFC", "group": "C"},
+
+    {"fifa_code": "FRA", "name": "France", "confederation": "UEFA", "group": "D"},
+    {"fifa_code": "COL", "name": "Colombia", "confederation": "CONMEBOL", "group": "D"},
+    {"fifa_code": "JPN", "name": "Japan", "confederation": "AFC", "group": "D"},
+    {"fifa_code": "ALG", "name": "Algeria", "confederation": "CAF", "group": "D"},
+
+    {"fifa_code": "BRA", "name": "Brazil", "confederation": "CONMEBOL", "group": "E"},
+    {"fifa_code": "GER", "name": "Germany", "confederation": "UEFA", "group": "E"},
+    {"fifa_code": "CRC", "name": "Costa Rica", "confederation": "CONCACAF", "group": "E"},
+    {"fifa_code": "KSA", "name": "Saudi Arabia", "confederation": "AFC", "group": "E"},
+
+    {"fifa_code": "ENG", "name": "England", "confederation": "UEFA", "group": "F"},
+    {"fifa_code": "URU", "name": "Uruguay", "confederation": "CONMEBOL", "group": "F"},
+    {"fifa_code": "EGY", "name": "Egypt", "confederation": "CAF", "group": "F"},
+    {"fifa_code": "AUS", "name": "Australia", "confederation": "AFC", "group": "F"},
+
+    {"fifa_code": "ESP", "name": "Spain", "confederation": "UEFA", "group": "G"},
+    {"fifa_code": "MAR", "name": "Morocco", "confederation": "CAF", "group": "G"},
+    {"fifa_code": "ECU", "name": "Ecuador", "confederation": "CONMEBOL", "group": "G"},
+    {"fifa_code": "UAE", "name": "UAE", "confederation": "AFC", "group": "G"},
+
+    {"fifa_code": "BEL", "name": "Belgium", "confederation": "UEFA", "group": "H"},
+    {"fifa_code": "CRO", "name": "Croatia", "confederation": "UEFA", "group": "H"},
+    {"fifa_code": "SEN", "name": "Senegal", "confederation": "CAF", "group": "H"},
+    {"fifa_code": "PAN", "name": "Panama", "confederation": "CONCACAF", "group": "H"},
+
+    {"fifa_code": "SWE", "name": "Sweden", "confederation": "UEFA", "group": "I"},
+    {"fifa_code": "DEN", "name": "Denmark", "confederation": "UEFA", "group": "I"},
+    {"fifa_code": "TUN", "name": "Tunisia", "confederation": "CAF", "group": "I"},
+    {"fifa_code": "IRN", "name": "Iran", "confederation": "AFC", "group": "I"},
+
+    {"fifa_code": "SUI", "name": "Switzerland", "confederation": "UEFA", "group": "J"},
+    {"fifa_code": "PER", "name": "Peru", "confederation": "CONMEBOL", "group": "J"},
+    {"fifa_code": "AUT", "name": "Austria", "confederation": "UEFA", "group": "J"},
+    {"fifa_code": "GHA", "name": "Ghana", "confederation": "CAF", "group": "J"},
+
+    {"fifa_code": "UKR", "name": "Ukraine", "confederation": "UEFA", "group": "K"},
+    {"fifa_code": "POL", "name": "Poland", "confederation": "UEFA", "group": "K"},
+    {"fifa_code": "JAM", "name": "Jamaica", "confederation": "CONCACAF", "group": "K"},
+    {"fifa_code": "NZL", "name": "New Zealand", "confederation": "OFC", "group": "K"},
+
+    {"fifa_code": "NOR", "name": "Norway", "confederation": "UEFA", "group": "L"},
+    {"fifa_code": "SRB", "name": "Serbia", "confederation": "UEFA", "group": "L"},
+    {"fifa_code": "CHI", "name": "Chile", "confederation": "CONMEBOL", "group": "L"},
+    {"fifa_code": "RSA", "name": "South Africa", "confederation": "CAF", "group": "L"}
+  ]
+}

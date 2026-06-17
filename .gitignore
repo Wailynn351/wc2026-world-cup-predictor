@@ -16,3 +16,4 @@ Thumbs.db
 
 # Project data cache
 *.tmp
+*.log

@@ -1,0 +1,10 @@
+{
+  "mcpServers": {
+    "wc2026": {
+      "command": "python3",
+      "args": [".claude/mcp_server.py"],
+      "description": "WC2026 World Cup Predictor — predict match outcomes, list teams, and query group data via Elo ratings.",
+      "env": {}
+    }
+  }
+}

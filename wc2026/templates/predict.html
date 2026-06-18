@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+{% block title %}Predict Match{% endblock %}
+
+{% block content %}
+<h1>🔮 Predict a Match</h1>
+<p class="subtitle">Predict any match-up using Elo ratings and historical data.</p>
+
+<div class="card">
+    <form action="/predict" method="get" class="form-row">
+        <div class="form-group">
+            <label>Home Team</label>
+            <select name="home" style="min-width:200px;">
+                <option value="">Select team...</option>
+                {% for t in teams %}
+                <option value="{{ t.name }}" {% if home == t.name %}selected{% endif %}>
+                    {{ t.name }} ({{ t.elo | int }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Away Team</label>
+            <select name="away" style="min-width:200px;">
+                <option value="">Select team...</option>
+                {% for t in teams %}
+                <option value="{{ t.name }}" {% if away == t.name %}selected{% endif %}>
+                    {{ t.name }} ({{ t.elo | int }})
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Stage</label>
+            <select name="stage">
+                <option value="" {% if not stage %}selected{% endif %}>Group / Friendly</option>
+                <option value="round_of_16" {% if stage == 'round_of_16' %}selected{% endif %}>Round of 16</option>
+                <option value="quarterfinal" {% if stage == 'quarterfinal' %}selected{% endif %}>Quarterfinal</option>
+                <option value="semifinal" {% if stage == 'semifinal' %}selected{% endif %}>Semifinal</option>
+                <option value="final" {% if stage == 'final' %}selected{% endif %}>Final</option>
+            </select>
+        </div>
+        <button type="submit">Predict</button>
+    </form>
+</div>
+
+{% if error %}
+<div class="card" style="border-color:var(--red);text-align:center;color:var(--red);">
+    {{ error }}
+</div>
+{% endif %}
+
+{% if prediction %}
+<div class="card prediction-result">
+    <div style="color:var(--dim);font-size:0.9rem;">
+        Elo: {{ prediction.home_elo | int }} — {{ prediction.away_elo | int }}
+    </div>
+    <div class="winner">
+        {{ prediction.predicted_winner or 'Draw' }}
+    </div>
+    <div style="font-size:1.1rem;margin-bottom:0.5rem;">
+        {{ prediction.home_team }} vs {{ prediction.away_team }}
+    </div>
+
+    <!-- Probability bars -->
+    <div style="max-width:400px;margin:1rem auto;">
+        <div class="bar-row">
+            <span class="label">{{ prediction.home_team }}</span>
+            <div class="bar-track"><div class="bar-fill green" style="width:{{ (prediction.home_win_pct * 100) | int }}%;"></div></div>
+            <span>{{ "%.1f" | format(prediction.home_win_pct * 100) }}%</span>
+        </div>
+        <div class="bar-row">
+            <span class="label">Draw</span>
+            <div class="bar-track"><div class="bar-fill yellow" style="width:{{ (prediction.draw_pct * 100) | int }}%;"></div></div>
+            <span>{{ "%.1f" | format(prediction.draw_pct * 100) }}%</span>
+        </div>
+        <div class="bar-row">
+            <span class="label">{{ prediction.away_team }}</span>
+            <div class="bar-track"><div class="bar-fill red" style="width:{{ (prediction.away_win_pct * 100) | int }}%;"></div></div>
+            <span>{{ "%.1f" | format(prediction.away_win_pct * 100) }}%</span>
+        </div>
+    </div>
+
+    <div class="confidence {{ prediction.confidence }}" style="margin-top:0.75rem;">
+        Confidence: {{ prediction.confidence | upper }}
+    </div>
+
+    <div style="margin-top:1rem;font-size:0.8rem;color:var(--dim);">
+        Based on Elo ratings. Home advantage: +50 Elo points.
+        {% if stage %}Knockout stage: reduced draw probability.{% endif %}
+    </div>
+</div>
+{% endif %}
+
+<!-- Quick Swaps -->
+{% if prediction %}
+<h2>🔄 Related Matchups</h2>
+<div class="grid-3">
+    <a href="/predict?home={{ prediction.away_team | urlencode }}&away={{ prediction.home_team | urlencode }}&stage={{ stage }}" class="card" style="text-decoration:none;color:inherit;text-align:center;">
+        <div style="font-size:0.85rem;">Reverse fixture</div>
+        <div>{{ prediction.away_team }} vs {{ prediction.home_team }}</div>
+    </a>
+    {% for t in teams[:6] %}
+    {% if t.name != prediction.home_team and t.name != prediction.away_team %}
+    <a href="/predict?home={{ prediction.home_team | urlencode }}&away={{ t.name | urlencode }}&stage={{ stage }}" class="card" style="text-decoration:none;color:inherit;text-align:center;">
+        <div style="font-size:0.85rem;">{{ prediction.home_team }} vs</div>
+        <div>{{ t.name }} ({{ t.elo | int }})</div>
+    </a>
+    {% endif %}
+    {% endfor %}
+</div>
+{% endif %}
+
+{% endblock %}

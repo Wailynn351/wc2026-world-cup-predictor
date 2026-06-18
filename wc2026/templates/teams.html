@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Teams{% endblock %}
+
+{% block content %}
+<h1>🌍 All 48 Teams</h1>
+<p class="subtitle">Ranked by Elo rating. Click a team name to predict a match with it.</p>
+
+<table>
+    <thead>
+        <tr><th>#</th><th>Team</th><th>Code</th><th>Elo</th><th>Group</th><th>Confederation</th></tr>
+    </thead>
+    <tbody>
+        {% for t in teams %}
+        <tr>
+            <td style="font-weight:600;{% if loop.index <= 10 %}color:var(--green);{% elif loop.index <= 30 %}color:var(--yellow);{% endif %}">
+                {{ loop.index }}
+            </td>
+            <td>
+                <a href="/predict?home={{ t.name | urlencode }}&away=Argentina" style="color:inherit;text-decoration:none;">
+                    {{ t.name }}
+                </a>
+            </td>
+            <td style="font-family:monospace;">{{ t.code }}</td>
+            <td>{{ t.elo | int }}</td>
+            <td>{{ t.group }}</td>
+            <td style="color:var(--dim);">{{ t.confederation }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<p style="margin-top:1rem;color:var(--dim);font-size:0.85rem;text-align:center;">
+    Click any team to go to the prediction form with that team pre-selected.
+</p>
+
+{% endblock %}

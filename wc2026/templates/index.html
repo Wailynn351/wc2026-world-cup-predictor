@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+
+{% block head %}
+    {% if has_api_key %}
+    <meta http-equiv="refresh" content="120">
+    {% endif %}
+{% endblock %}
+
+{% block content %}
+<h1>🏆 2026 World Cup Predictor</h1>
+<p class="subtitle">Elo-powered match predictions with live score integration.</p>
+
+{% if not has_api_key %}
+<div class="api-warning">
+    ⚠️ <strong>Live scores unavailable.</strong> To enable live match data, get a free API key from
+    <a href="https://www.football-data.org/" style="color: var(--yellow);">football-data.org</a>
+    and set it: <code>export FOOTBALL_DATA_API_KEY="your-key"</code>
+    or create a <code>.env</code> file in the project root.
+</div>
+{% endif %}
+
+<!-- Live Scores Section -->
+{% if live_matches %}
+    {% set live = live_matches | selectattr('is_live') | list %}
+    {% set finished = live_matches | selectattr('is_finished') | list %}
+    {% set scheduled = live_matches | selectattr('is_scheduled') | list %}
+
+    {% if live %}
+    <h2>🔴 Live Now</h2>
+    {% for m in live %}
+    <div class="card">
+        <div class="match-card">
+            <div class="team home">{{ m.home_team }}</div>
+            <div>
+                <div class="score live">{{ m.score_display }}</div>
+                <div class="meta">
+                    <span class="badge live">● {{ m.minute_display }}</span>
+                </div>
+            </div>
+            <div class="team">{{ m.away_team }}</div>
+        </div>
+        <div style="text-align:center;font-size:0.8rem;color:var(--dim);margin-top:0.25rem;">
+            Group {{ m.group or '?' }} · {{ m.stage | replace('_', ' ') | title }}
+        </div>
+    </div>
+    {% endfor %}
+    {% endif %}
+
+    {% if finished %}
+    <h2>📋 Recent Results</h2>
+    <div class="grid-3">
+    {% for m in finished[-6:] | reverse %}
+    <a href="/match/{{ m.match_id }}" style="text-decoration:none;color:inherit;">
+    <div class="card" style="text-align:center;">
+        <div style="font-size:0.85rem;">{{ m.home_team }} <strong>{{ m.score_display }}</strong> {{ m.away_team }}</div>
+        <div style="font-size:0.75rem;color:var(--dim);"><span class="badge ft">FT</span> Group {{ m.group or '?' }}</div>
+    </div>
+    </a>
+    {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if scheduled %}
+    <h2>📅 Upcoming</h2>
+    <div class="grid-3">
+    {% for m in scheduled[:6] %}
+    <div class="card" style="text-align:center;">
+        <div style="font-size:0.85rem;">{{ m.home_team }} <span style="color:var(--dim)">vs</span> {{ m.away_team }}</div>
+        <div style="font-size:0.75rem;color:var(--dim);">
+            <span class="badge upcoming">UPCOMING</span>
+            {{ m.utc_date[:16] | replace('T', ' ') if m.utc_date else 'TBD' }}
+        </div>
+    </div>
+    {% endfor %}
+    </div>
+    {% endif %}
+
+{% else %}
+    <div class="card" style="text-align:center;padding:3rem;">
+        <p style="color:var(--dim);">No match data available.</p>
+        <p style="font-size:0.85rem;color:var(--dim);">
+            {% if has_api_key %}
+            The API returned no matches. The tournament may not have started yet, or try refreshing.
+            {% else %}
+            Set up an API key to see live match data here.
+            {% endif %}
+        </p>
+    </div>
+{% endif %}
+
+<!-- Quick Predict -->
+<h2>⚡ Quick Predict</h2>
+<div class="card">
+    <form action="/predict" method="get" style="display:flex;gap:0.75rem;align-items:end;flex-wrap:wrap;">
+        <div class="form-group">
+            <label>Home Team</label>
+            <select name="home" style="min-width:180px;">
+                <option value="">Select team...</option>
+                {% for t in teams %}
+                <option value="{{ t.name }}">{{ t.name }} ({{ t.elo | int }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Away Team</label>
+            <select name="away" style="min-width:180px;">
+                <option value="">Select team...</option>
+                {% for t in teams %}
+                <option value="{{ t.name }}">{{ t.name }} ({{ t.elo | int }})</option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label>Stage</label>
+            <select name="stage">
+                <option value="">Group / Friendly</option>
+                <option value="round_of_16">Round of 16</option>
+                <option value="quarterfinal">Quarterfinal</option>
+                <option value="semifinal">Semifinal</option>
+                <option value="final">Final</option>
+            </select>
+        </div>
+        <button type="submit">Predict →</button>
+    </form>
+</div>
+
+<!-- Top Teams -->
+<h2>📊 Top Teams by Elo</h2>
+<table>
+    <thead>
+        <tr><th>#</th><th>Team</th><th>Elo</th><th>Group</th><th>Confed</th></tr>
+    </thead>
+    <tbody>
+        {% for t in teams[:10] %}
+        <tr>
+            <td style="color:var(--green);font-weight:600;">{{ loop.index }}</td>
+            <td>{{ t.name }}</td>
+            <td>{{ t.elo | int }}</td>
+            <td>{{ t.group }}</td>
+            <td style="color:var(--dim);">{{ t.confederation }}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+<p style="margin-top:0.5rem;text-align:right;">
+    <a href="/teams" style="color:var(--accent);font-size:0.85rem;">View all 48 teams →</a>
+</p>
+
+{% endblock %}

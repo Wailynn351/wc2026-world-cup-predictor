@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip3 install *)",
+      "Bash(python3 -c \"import sys; print\\(sys.path\\)\")",
+      "Read(//mnt/c/Users/**)",
+      "Read(//mnt/**)",
+      "Read(//home/**)",
+      "WebFetch(domain:github.com)"
+    ]
+  },
+  "enabledMcpjsonServers": [
+    "wc2026"
+  ]
+}

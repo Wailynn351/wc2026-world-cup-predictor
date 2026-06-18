@@ -33,10 +33,15 @@ from wc2026.display import (
     round_header,
     knockout_result,
     stats_display,
+    live_match_card,
+    live_scores_banner,
+    standing_table,
+    prediction_vs_actual_card,
     GREEN,
     CYAN,
     BOLD,
     RESET,
+    DIM,
 )
 
 
@@ -327,6 +332,92 @@ def cmd_stats(args: argparse.Namespace) -> None:
             print(f"    {year}: {', '.join(results)}")
 
 
+def cmd_live(args: argparse.Namespace) -> None:
+    """Handle the 'live' subcommand — fetch and display live scores."""
+    from wc2026.score_fetcher import fetch_matches, fetch_standings, cache_age
+
+    status = getattr(args, "status", None)
+    group_filter = getattr(args, "group", None)
+
+    try:
+        matches = fetch_matches(status=status)
+    except ValueError as e:
+        print(f"{RED}Error: {e}{RESET}")
+        return
+    except RuntimeError as e:
+        print(f"{RED}API error: {e}{RESET}")
+        return
+
+    if not matches:
+        print(f"{DIM}No matches found.{RESET}")
+        return
+
+    # Filter by group if requested
+    if group_filter:
+        group_upper = group_filter.upper()
+        matches = [m for m in matches if m.group == group_upper]
+        if not matches:
+            print(f"{DIM}No matches found for Group {group_upper}.{RESET}")
+            return
+
+    # Show cache age
+    age = cache_age(f"matches_{status or 'all'}")
+    if age is not None:
+        print(f"{DIM}Data age: {age:.0f}s ago{RESET}\n")
+
+    # Live scores banner
+    print(live_scores_banner(matches))
+
+    # Detailed match cards
+    if not getattr(args, "compact", False):
+        print(f"\n{BOLD}Match Details:{RESET}\n")
+        for m in matches:
+            if m.is_live or m.is_finished:
+                # Try to get prediction for comparison
+                teams = load_teams()
+                home = get_team_by_name(m.home_team, teams)
+                away = get_team_by_name(m.away_team, teams)
+                if home and away:
+                    pred = predict(home, away, m.stage.lower() if m.stage else None)
+                    print(live_match_card(m, pred))
+                else:
+                    print(live_match_card(m))
+                print()
+
+    # Standings
+    if not getattr(args, "no_standings", False):
+        try:
+            standings = fetch_standings()
+            print(standing_table(standings, group_filter))
+        except (RuntimeError, ValueError):
+            pass  # Silently skip if standings unavailable
+
+
+def cmd_web(args: argparse.Namespace) -> None:
+    """Handle the 'web' subcommand — launch the web UI."""
+    import os
+
+    try:
+        from wc2026.web_server import create_app
+    except ImportError as e:
+        print(f"{RED}Missing dependencies. Install with:{RESET}")
+        print("  pip install fastapi uvicorn jinja2 python-dotenv")
+        print(f"\n{RED}Error: {e}{RESET}")
+        return
+
+    host = getattr(args, "host", "127.0.0.1")
+    port = getattr(args, "port", 8080)
+
+    print(f"\n{BOLD}{CYAN}╔══ WC2026 Web UI ═══════════════════════════════════╗{RESET}")
+    print(f"{BOLD}{CYAN}║  Starting server at http://{host}:{port}          {' ' * (24 - len(str(port)))}║{RESET}")
+    print(f"{BOLD}{CYAN}║  Press Ctrl+C to stop                              ║{RESET}")
+    print(f"{BOLD}{CYAN}╚══════════════════════════════════════════════════════╝{RESET}\n")
+
+    import uvicorn
+    app = create_app()
+    uvicorn.run(app, host=host, port=port, log_level="info")
+
+
 def main() -> None:
     """Entry point for the CLI."""
     parser = argparse.ArgumentParser(
@@ -361,6 +452,25 @@ def main() -> None:
     p_stats = sub.add_parser("stats", help="Show team history and info")
     p_stats.add_argument("team", help="Team name or FIFA code")
 
+    # live
+    p_live = sub.add_parser("live", help="Fetch and display live World Cup scores")
+    p_live.add_argument(
+        "--status", "-s",
+        choices=["SCHEDULED", "LIVE", "FINISHED"],
+        default=None,
+        help="Filter by match status (default: all)",
+    )
+    p_live.add_argument("--group", "-g", help="Filter by group (A-L)")
+    p_live.add_argument("--compact", "-c", action="store_true",
+                        help="Compact output (banner only, no match details)")
+    p_live.add_argument("--no-standings", action="store_true",
+                        help="Skip standings display")
+
+    # web
+    p_web = sub.add_parser("web", help="Launch the web UI")
+    p_web.add_argument("--host", default="127.0.0.1", help="Bind address (default: 127.0.0.1)")
+    p_web.add_argument("--port", "-p", type=int, default=8080, help="Port (default: 8080)")
+
     args = parser.parse_args()
 
     if args.command == "predict":
@@ -373,6 +483,10 @@ def main() -> None:
         cmd_simulate(args)
     elif args.command == "stats":
         cmd_stats(args)
+    elif args.command == "live":
+        cmd_live(args)
+    elif args.command == "web":
+        cmd_web(args)
     else:
         parser.print_help()
 

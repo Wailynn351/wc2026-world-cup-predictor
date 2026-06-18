@@ -17,3 +17,9 @@ Thumbs.db
 # Project data cache
 *.tmp
 *.log
+data/live_cache*.json
+data/mcp_debug.log
+
+# Environment
+.env
+.venv/

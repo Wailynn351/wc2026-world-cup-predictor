@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+{% block title %}Match {{ match.home_team }} vs {{ match.away_team }}{% endblock %}
+
+{% block content %}
+<h1>{{ match.home_team }} vs {{ match.away_team }}</h1>
+
+<div class="card" style="text-align:center;">
+    <div style="font-size:2rem;font-weight:700;margin:1rem 0;">
+        {{ match.home_team }}
+        <span style="margin:0 1rem;">{{ match.score_display }}</span>
+        {{ match.away_team }}
+    </div>
+
+    <div>
+        {% if match.is_live %}
+            <span class="badge live">● LIVE {{ match.minute_display }}</span>
+        {% elif match.is_finished %}
+            <span class="badge ft">FINISHED</span>
+        {% else %}
+            <span class="badge upcoming">UPCOMING</span>
+        {% endif %}
+    </div>
+
+    <div style="margin:0.5rem 0;color:var(--dim);">
+        {% if match.group %}Group {{ match.group }} · {% endif %}
+        {{ match.stage | replace('_', ' ') | title }}
+        {% if match.utc_date %} · {{ match.utc_date[:16] | replace('T', ' ') }} UTC{% endif %}
+    </div>
+
+    {% if match.is_finished and match.winner %}
+    <div style="margin:0.5rem 0;font-weight:600;">
+        Winner:
+        {% if match.winner == 'HOME_TEAM' %}
+            {{ match.home_team }}
+        {% elif match.winner == 'AWAY_TEAM' %}
+            {{ match.away_team }}
+        {% else %}
+            Draw
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+{% if prediction %}
+<h2>🔮 Prediction vs Actual</h2>
+<div class="grid-2">
+    <!-- Prediction -->
+    <div class="card" style="text-align:center;">
+        <h3 style="color:var(--dim);margin-bottom:0.5rem;">Predicted</h3>
+        <div style="font-size:1.3rem;font-weight:700;">
+            {{ prediction.predicted_winner or 'Draw' }}
+        </div>
+        <div style="margin-top:0.75rem;">
+            <div class="bar-row">
+                <span class="label">{{ prediction.home_team }}</span>
+                <div class="bar-track"><div class="bar-fill green" style="width:{{ (prediction.home_win_pct * 100) | int }}%;"></div></div>
+                <span>{{ "%.1f" | format(prediction.home_win_pct * 100) }}%</span>
+            </div>
+            <div class="bar-row">
+                <span class="label">Draw</span>
+                <div class="bar-track"><div class="bar-fill yellow" style="width:{{ (prediction.draw_pct * 100) | int }}%;"></div></div>
+                <span>{{ "%.1f" | format(prediction.draw_pct * 100) }}%</span>
+            </div>
+            <div class="bar-row">
+                <span class="label">{{ prediction.away_team }}</span>
+                <div class="bar-track"><div class="bar-fill red" style="width:{{ (prediction.away_win_pct * 100) | int }}%;"></div></div>
+                <span>{{ "%.1f" | format(prediction.away_win_pct * 100) }}%</span>
+            </div>
+        </div>
+        <div class="confidence {{ prediction.confidence }}" style="margin-top:0.5rem;">
+            {{ prediction.confidence | upper }} confidence
+        </div>
+    </div>
+
+    <!-- Actual Result -->
+    <div class="card" style="text-align:center;">
+        <h3 style="color:var(--dim);margin-bottom:0.5rem;">Actual Result</h3>
+        {% if match.is_finished %}
+            <div style="font-size:1.3rem;font-weight:700;">
+                {% if match.winner == 'HOME_TEAM' %}
+                    {{ match.home_team }}
+                {% elif match.winner == 'AWAY_TEAM' %}
+                    {{ match.away_team }}
+                {% else %}
+                    Draw
+                {% endif %}
+            </div>
+            <div style="font-size:1.5rem;font-weight:700;margin:0.5rem 0;">
+                {{ match.home_score }} - {{ match.away_score }}
+            </div>
+
+            <!-- Accuracy check -->
+            {% set pred_winner = prediction.predicted_winner or 'Draw' %}
+            {% set actual_winner = match.home_team if match.winner == 'HOME_TEAM' else match.away_team if match.winner == 'AWAY_TEAM' else 'Draw' %}
+
+            {% if pred_winner == actual_winner %}
+                <div style="color:var(--green);font-size:1.1rem;font-weight:600;">✓ Correct prediction!</div>
+            {% elif actual_winner == 'Draw' %}
+                <div style="color:var(--yellow);font-weight:600;">△ Predicted winner, got draw</div>
+            {% else %}
+                <div style="color:var(--red);font-weight:600;">✗ Prediction missed</div>
+            {% endif %}
+
+        {% elif match.is_live %}
+            <div style="color:var(--red);">● Match in progress</div>
+            <div style="font-size:0.85rem;color:var(--dim);margin-top:0.5rem;">Check back after full time for comparison.</div>
+        {% else %}
+            <div style="color:var(--dim);">Match hasn't started yet</div>
+        {% endif %}
+    </div>
+</div>
+{% endif %}
+
+<p style="margin-top:1.5rem;">
+    <a href="/matches" style="color:var(--accent);font-size:0.9rem;">← Back to all matches</a>
+</p>
+
+{% endblock %}

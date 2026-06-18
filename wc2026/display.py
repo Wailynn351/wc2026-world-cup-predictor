@@ -141,6 +141,222 @@ def knockout_result(home: str, away: str, winner: str, home_score: int, away_sco
     return f"  {hl}{home:<20}{RESET} {home_score} - {away_score} {al}{away:<20}{RESET}"
 
 
+def live_match_card(match, prediction=None) -> str:
+    """Render a single live/ finished/ scheduled match with optional prediction.
+
+    Args:
+        match: A LiveMatch from score_fetcher.
+        prediction: Optional Prediction object for comparison.
+
+    Returns:
+        Formatted match card string.
+    """
+    from wc2026.score_fetcher import LiveMatch
+
+    lines = []
+    lines.append("┌" + "─" * 58 + "┐")
+
+    # Status badge
+    if match.is_live:
+        badge = f"{RED}● LIVE{RESET}"
+    elif match.is_finished:
+        badge = f"{DIM}FT{RESET}"
+    else:
+        badge = f"{DIM}UPCOMING{RESET}"
+
+    # Header
+    status_line = f"  {badge}  {match.home_team} {match.score_display} {match.away_team}"
+    lines.append(f"│{status_line:<62}│")
+
+    if match.minute_display:
+        minute_line = f"  {DIM}{match.minute_display}{RESET}"
+        lines.append(f"│{minute_line:<62}│")
+
+    lines.append("│" + " " * 58 + "│")
+
+    # Group / stage info
+    meta = f"  {DIM}Stage: {match.stage}"
+    if match.group:
+        meta += f" | Group {match.group}"
+    meta += f"{RESET}"
+    lines.append(f"│{meta:<62}│")
+
+    # Prediction comparison (if available)
+    if prediction and match.is_finished:
+        lines.append("│" + " " * 58 + "│")
+        pred_line = f"  {DIM}Predicted: {prediction.predicted_winner or 'Draw'}{RESET}"
+        lines.append(f"│{pred_line:<62}│")
+
+        actual_winner = match.winner
+        if actual_winner == "HOME_TEAM":
+            actual = match.home_team
+        elif actual_winner == "AWAY_TEAM":
+            actual = match.away_team
+        elif actual_winner == "DRAW":
+            actual = "Draw"
+        else:
+            actual = "?"
+
+        # Compare
+        pred_name = prediction.predicted_winner or "Draw"
+        if pred_name == actual:
+            acc = f"{GREEN}✓ Correct!{RESET}"
+        else:
+            acc = f"{RED}✗ Miss{RESET}"
+        actual_line = f"  Actual: {actual}  {acc}"
+        lines.append(f"│{actual_line:<62}│")
+
+    lines.append("└" + "─" * 58 + "┘")
+    return "\n".join(lines)
+
+
+def live_scores_banner(matches) -> str:
+    """Render a compact live scores banner for all live matches.
+
+    Args:
+        matches: List of LiveMatch objects (live or recently finished).
+
+    Returns:
+        Formatted banner string.
+    """
+    from wc2026.score_fetcher import LiveMatch
+
+    live = [m for m in matches if m.is_live]
+    finished = [m for m in matches if m.is_finished]
+    scheduled = [m for m in matches if m.is_scheduled]
+
+    lines = []
+    lines.append(f"\n{BOLD}{CYAN}╔══ LIVE SCORES ═══════════════════════════════════╗{RESET}")
+
+    if live:
+        for m in live:
+            pulse = f"{RED}●{RESET}"
+            lines.append(
+                f"  {pulse} {BOLD}{m.home_team}{RESET} {m.score_display} "
+                f"{BOLD}{m.away_team}{RESET}  {RED}{m.minute_display}{RESET}"
+            )
+        lines.append("")
+
+    if finished:
+        lines.append(f"  {DIM}── Recent Results ──{RESET}")
+        for m in finished[-6:]:  # Last 6 finished matches
+            lines.append(
+                f"     {m.home_team} {m.score_display} {m.away_team}  {DIM}FT{RESET}"
+            )
+        lines.append("")
+
+    if scheduled:
+        lines.append(f"  {DIM}── Upcoming ──{RESET}")
+        for m in scheduled[:4]:  # Next 4 matches
+            utc_dt = m.utc_date[:16].replace("T", " ") if m.utc_date else "TBD"
+            lines.append(f"     {m.home_team} vs {m.away_team}  {DIM}{utc_dt}{RESET}")
+
+    lines.append(f"{CYAN}╚══════════════════════════════════════════════════╝{RESET}")
+    return "\n".join(lines)
+
+
+def standing_table(standings, group_letter: str = None) -> str:
+    """Render a group standing table.
+
+    Args:
+        standings: List of GroupStanding objects.
+        group_letter: If provided, filter to this group only.
+
+    Returns:
+        Formatted table string.
+    """
+    from wc2026.score_fetcher import GroupStanding
+
+    if group_letter:
+        # Normalize: users might filter by "A" or "Group A"
+        search = group_letter.upper().replace("GROUP ", "")
+        standings = [s for s in standings if s.group.replace("Group ", "").upper() == search]
+
+    if not standings:
+        return f"{DIM}No standings data available.{RESET}"
+
+    # Group by group letter
+    groups: dict[str, list] = {}
+    for s in standings:
+        groups.setdefault(s.group, []).append(s)
+
+    lines = []
+    for grp in sorted(groups.keys()):
+        grp_label = grp.replace("Group ", "") if grp.startswith("Group ") else grp
+        lines.append(f"\n{BOLD}{CYAN}═══ Group {grp_label} ═══{RESET}")
+        lines.append(
+            f"{'#':>2} {'Team':<20} {'P':>2} {'W':>2} {'D':>2} "
+            f"{'L':>2} {'GF':>2} {'GA':>2} {'GD':>3} {'Pts':>3}"
+        )
+        lines.append("─" * 52)
+        for s in sorted(groups[grp], key=lambda x: x.position):
+            pos_color = GREEN if s.position <= 2 else RESET
+            lines.append(
+                f"{pos_color}{s.position:>2}{RESET} "
+                f"{s.team_name:<20} {s.played:>2} {s.won:>2} {s.drawn:>2} "
+                f"{s.lost:>2} {s.goals_for:>2} {s.goals_against:>2} "
+                f"{s.goal_diff:>+3} {s.points:>3}"
+            )
+
+    return "\n".join(lines)
+
+
+def prediction_vs_actual_card(match, prediction) -> str:
+    """Side-by-side comparison of prediction vs actual result.
+
+    Args:
+        match: A LiveMatch (must be finished).
+        prediction: A Prediction object.
+
+    Returns:
+        Formatted comparison card.
+    """
+    from wc2026.score_fetcher import LiveMatch
+
+    lines = []
+    lines.append("┌" + "─" * 58 + "┐")
+
+    # Match header
+    lines.append(f"│  {BOLD}{match.home_team} vs {match.away_team}{RESET:<52}│")
+    lines.append("│" + " " * 58 + "│")
+
+    # Prediction column
+    pred_winner = prediction.predicted_winner or "Draw"
+    lines.append(f"│  {DIM}Predicted:{RESET}  {pred_winner:<20} "
+                 f"{GREEN}{prediction.home_win_pct:.0%}{RESET} / "
+                 f"{YELLOW}{prediction.draw_pct:.0%}{RESET} / "
+                 f"{RED}{prediction.away_win_pct:.0%}│")
+
+    # Actual column
+    actual_winner = match.winner
+    if actual_winner == "HOME_TEAM":
+        actual = match.home_team
+    elif actual_winner == "AWAY_TEAM":
+        actual = match.away_team
+    elif actual_winner == "DRAW":
+        actual = "Draw"
+    else:
+        actual = "N/A"
+
+    lines.append(f"│  {DIM}Actual:{RESET}     {actual:<20} "
+                 f"{match.home_score or '?'} - {match.away_score or '?'}│")
+    lines.append("│" + " " * 58 + "│")
+
+    # Accuracy
+    if prediction.predicted_winner == actual or (prediction.predicted_winner is None and actual_winner == "DRAW"):
+        verdict = f"{GREEN}✓ Prediction correct!{RESET}"
+    elif actual_winner == "DRAW" and prediction.predicted_winner is not None:
+        verdict = f"{YELLOW}△ Predicted winner, got draw{RESET}"
+    elif actual_winner not in ("HOME_TEAM", "AWAY_TEAM"):
+        verdict = f"{DIM}? Unknown{RESET}"
+    else:
+        verdict = f"{RED}✗ Prediction incorrect{RESET}"
+    lines.append(f"│  {verdict:<54}│")
+
+    lines.append("└" + "─" * 58 + "┘")
+    return "\n".join(lines)
+
+
 def stats_display(team: Team, matches_played: int, wins: int, draws: int, losses: int) -> str:
     """Render a team stats card."""
     total = matches_played or 1

@@ -6,7 +6,9 @@
       "Read(//mnt/c/Users/**)",
       "Read(//mnt/**)",
       "Read(//home/**)",
-      "WebFetch(domain:github.com)"
+      "WebFetch(domain:github.com)",
+      "Bash(.venv/bin/python -m wc2026 web --host 127.0.0.1 --port 8080)",
+      "Bash(timeout 10 bash -c 'until grep -q \"Uvicorn running\" /tmp/claude-1000/-mnt-c-Users-Wai-Lynn-personal-project/4d3b9f29-3dbc-4601-9c3a-a210d17b7693/tasks/blvmjccua.output 2>/dev/null; do sleep 0.5; done && echo \"SERVER_READY\"')"
     ]
   },
   "enabledMcpjsonServers": [

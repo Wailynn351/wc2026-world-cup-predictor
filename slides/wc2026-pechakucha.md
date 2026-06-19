@@ -20,7 +20,7 @@ Source: slides/templates/pechakucha-6x20.md
 ![bg right:35% opacity:.3](https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=800)
 
 **Elo-powered · Real data · Pure Python**
-##### `python -m wc2026 predict "Argentina" "France"`
+##### python -m wc2026 predict
 
 ---
 

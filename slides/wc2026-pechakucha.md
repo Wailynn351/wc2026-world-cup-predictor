@@ -38,7 +38,7 @@ Source: slides/templates/pechakucha-6x20.md
 
 <!-- _class: invert -->
 
-# The Model
+# What i build - The Model
 
 <!-- _footer: "Elo formula + Gaussian draw + home advantage + knockout adjustment" -->
 
@@ -60,7 +60,7 @@ $$P(A) = \frac{1}{1 + 10^{\,(R_B - R_A)\,/\,400}}$$
 
 <!-- _class: default -->
 
-# Architecture
+# Architecture by HoW I bulid
 
 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1em; margin-top: .5em;">
 

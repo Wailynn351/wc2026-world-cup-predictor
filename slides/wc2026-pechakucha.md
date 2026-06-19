@@ -1,5 +1,6 @@
 ---
 marp: true
+auto-advance: 20
 theme: uncover
 class:
   - lead

@@ -124,7 +124,7 @@ wc2026/
 
 <!-- _class: lead invert -->
 
-# Takeaways
+# Done Checklist
 
 <div style="font-size: 1.8em; line-height: 1.8;">
 📈 &nbsp; <b>Elo works</b> — data beats gut feel<br>

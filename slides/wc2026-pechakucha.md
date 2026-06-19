@@ -126,11 +126,9 @@ wc2026/
 
 # Done Checklist
 
-<div style="font-size: 1.8em; line-height: 1.8;">
-📈 &nbsp; <b>Elo works</b> — data beats gut feel<br>
-🧱 &nbsp; <b>Layers pay off</b> — easy to test & extend<br>
-🤖 &nbsp; <b>Claude Code</b> — 16 commits, zero drift<br>
-</div>
+- [ ] repo public
+- [ ] MCP + skill + agent used
+- [ ] report.md in team repo
 
 <br>
 

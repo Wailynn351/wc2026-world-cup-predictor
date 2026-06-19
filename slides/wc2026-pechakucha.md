@@ -130,7 +130,7 @@ wc2026/
 - [ ] repo public
 - [ ] MCP + skill + agent used
 - [ ] report.md in team repo
-
+---
 <br>
 
 ### ⭐ [github.com/Wailynn351/wc2026-world-cup-predictor](https://github.com/Wailynn351/wc2026-world-cup-predictor)

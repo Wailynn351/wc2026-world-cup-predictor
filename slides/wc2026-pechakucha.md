@@ -14,7 +14,7 @@ Pecha Kucha: 6 slides × 20s = 2 minutes
 Source: slides/templates/pechakucha-6x20.md
 -->
 
-# 🏆 WC2026
+# 🏆 WC2026 by Wailynn
 ## World Cup Match Predictor
 
 ![bg right:35% opacity:.3](https://images.unsplash.com/photo-1579952363873-27f3bade9f55?w=800)

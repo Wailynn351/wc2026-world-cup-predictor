@@ -30,7 +30,7 @@
                 <td>{{ s.goals_for }}</td>
                 <td>{{ s.goals_against }}</td>
                 <td>{{ s.goal_diff }}</td>
-                <td style="font-weight:600;">{{ s.points }}</td>
+                <td class="font-bold">{{ s.points }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -44,7 +44,7 @@
             <tr>
                 <td>{% if loop.index <= 2 %}✨ {% endif %}{{ t.name }}</td>
                 <td>{{ t.elo_rating | int }}</td>
-                <td style="color:var(--dim);">{{ t.confederation }}</td>
+                <td class="text-dim">{{ t.confederation }}</td>
             </tr>
             {% endfor %}
         </tbody>
@@ -53,11 +53,11 @@
 
     <!-- Match Predictions -->
     <details style="margin-top:0.5rem;">
-        <summary style="cursor:pointer;color:var(--accent);font-size:0.85rem;">View match predictions</summary>
+        <summary class="details-summary">View match predictions</summary>
         <div style="margin-top:0.5rem;">
             {% for p in g.predictions %}
             <div class="card" style="padding:0.5rem 1rem;">
-                <div style="font-weight:600;margin-bottom:0.3rem;">
+                <div class="font-bold" style="margin-bottom:0.3rem;">
                     {{ p.home_team }} vs {{ p.away_team }}
                 </div>
                 <div class="bar-row">
@@ -75,7 +75,7 @@
                     <div class="bar-track"><div class="bar-fill red" style="width:{{ (p.away_win_pct * 100) | int }}%;"></div></div>
                     <span>{{ "%.1f" | format(p.away_win_pct * 100) }}%</span>
                 </div>
-                <div style="font-size:0.8rem;color:var(--dim);margin-top:0.25rem;">
+                <div class="text-sm text-dim" style="margin-top:0.25rem;">
                     Predicted: <strong>{{ p.predicted_winner or 'Draw' }}</strong>
                     · Confidence: <span class="confidence {{ p.confidence }}">{{ p.confidence | upper }}</span>
                 </div>

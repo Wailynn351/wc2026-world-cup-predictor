@@ -29,9 +29,22 @@ def _bar(pct: float, width: int = 16) -> str:
     return f"{color}{BAR_CHARS[0] * filled}{RESET}{DIM}{BAR_CHARS[3] * (width - filled)}{RESET}"
 
 
+_TEAM_COLORS = [
+    "\033[96m",   # cyan
+    "\033[93m",   # yellow
+    "\033[95m",   # magenta
+    "\033[94m",   # blue
+    "\033[92m",   # green
+    "\033[91m",   # red
+    "\033[36m",   # dark cyan
+    "\033[33m",   # dark yellow
+]
+
+
 def _color_for_team(team_name: str) -> str:
-    """Cycle through colors for team names (for distinguishing in tables)."""
-    return team_name  # Just plain for now; can be colored later
+    """Assign a consistent color to a team name for visual distinction."""
+    idx = hash(team_name) % len(_TEAM_COLORS)
+    return f"{_TEAM_COLORS[idx]}{team_name}{RESET}"
 
 
 def prediction_card(p: Prediction) -> str:
@@ -232,8 +245,8 @@ def live_scores_banner(matches) -> str:
         for m in live:
             pulse = f"{RED}●{RESET}"
             lines.append(
-                f"  {pulse} {BOLD}{m.home_team}{RESET} {m.score_display} "
-                f"{BOLD}{m.away_team}{RESET}  {RED}{m.minute_display}{RESET}"
+                f"  {pulse} {BOLD}{_color_for_team(m.home_team)}{RESET} {m.score_display} "
+                f"{BOLD}{_color_for_team(m.away_team)}{RESET}  {RED}{m.minute_display}{RESET}"
             )
         lines.append("")
 

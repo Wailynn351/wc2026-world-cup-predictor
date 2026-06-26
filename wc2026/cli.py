@@ -372,10 +372,10 @@ def cmd_live(args: argparse.Namespace) -> None:
     # Detailed match cards
     if not getattr(args, "compact", False):
         print(f"\n{BOLD}Match Details:{RESET}\n")
+        teams = load_teams()
         for m in matches:
             if m.is_live or m.is_finished:
                 # Try to get prediction for comparison
-                teams = load_teams()
                 home = get_team_by_name(m.home_team, teams)
                 away = get_team_by_name(m.away_team, teams)
                 if home and away:

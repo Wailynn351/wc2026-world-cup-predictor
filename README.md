@@ -5,7 +5,10 @@ Predict match outcomes for the 2026 FIFA World Cup using real historical data an
 ## Quick Start
 
 ```bash
-# Install dependencies
+# Install in development mode (recommended)
+pip install -e .
+
+# Or install dependencies only
 pip install -r requirements.txt
 
 # Predict a single match
@@ -163,7 +166,7 @@ wc2026/
 ├── models.py         # Team, Match, Prediction dataclasses
 ├── data.py           # JSON data loader with cross-referencing
 ├── predictor.py      # Elo-based prediction engine
-├── display.py        # Rich terminal output with ANSI colors + live score cards
+├── display.py        # Formatted terminal output with ANSI colors + live score cards
 ├── score_fetcher.py  # Live score API client (football-data.org)
 ├── web_server.py     # FastAPI web app with Jinja2 templates
 └── templates/        # HTML templates for web UI
@@ -207,7 +210,7 @@ tests/
 ## Requirements
 
 - Python 3.9 or later
-- Dependencies (install via `pip install -r requirements.txt`):
+- Dependencies (install via `pip install -e .` or `pip install -r requirements.txt`):
   - **fastapi** + **uvicorn** — web server and UI
   - **httpx** — HTTP client for live score API
   - **jinja2** — HTML template rendering

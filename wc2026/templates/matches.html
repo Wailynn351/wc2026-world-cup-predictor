@@ -39,7 +39,7 @@
 
 {% if matches %}
     {% for m in matches %}
-    <a href="/match/{{ m.match_id }}" style="text-decoration:none;color:inherit;">
+    <a href="/match/{{ m.match_id }}" class="link-reset">
     <div class="card">
         <div class="match-card">
             <div class="team home">{{ m.home_team }}</div>
@@ -59,7 +59,7 @@
             </div>
             <div class="team">{{ m.away_team }}</div>
         </div>
-        <div style="text-align:center;font-size:0.8rem;color:var(--dim);margin-top:0.25rem;">
+        <div class="match-meta">
             Group {{ m.group or '?' }} · {{ m.stage | replace('_', ' ') | title }}
             {% if m.utc_date %} · {{ m.utc_date[:16] | replace('T', ' ') }}{% endif %}
         </div>
@@ -67,8 +67,8 @@
     </a>
     {% endfor %}
 {% else %}
-    <div class="card" style="text-align:center;padding:3rem;">
-        <p style="color:var(--dim);">No matches found matching your filters.</p>
+    <div class="card empty-state">
+        <p class="text-dim">No matches found matching your filters.</p>
     </div>
 {% endif %}
 

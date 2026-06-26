@@ -2,6 +2,7 @@
 
 import json
 import os
+from functools import lru_cache
 from pathlib import Path
 from typing import Optional
 
@@ -20,6 +21,7 @@ def _load_json(filename: str) -> dict:
         return json.load(f)
 
 
+@lru_cache(maxsize=1)
 def load_teams() -> list[Team]:
     """Load all 2026 World Cup teams with their Elo ratings."""
     teams_data = _load_json("teams.json")
@@ -40,6 +42,7 @@ def load_teams() -> list[Team]:
     return teams
 
 
+@lru_cache(maxsize=1)
 def load_historical_matches() -> list[Match]:
     """Load all historical World Cup matches."""
     data = _load_json("historical_matches.json")

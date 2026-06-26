@@ -40,7 +40,7 @@
             </div>
             <div class="team">{{ m.away_team }}</div>
         </div>
-        <div style="text-align:center;font-size:0.8rem;color:var(--dim);margin-top:0.25rem;">
+        <div class="match-meta">
             Group {{ m.group or '?' }} · {{ m.stage | replace('_', ' ') | title }}
         </div>
     </div>
@@ -51,10 +51,10 @@
     <h2>📋 Recent Results</h2>
     <div class="grid-3">
     {% for m in finished[-6:] | reverse %}
-    <a href="/match/{{ m.match_id }}" style="text-decoration:none;color:inherit;">
-    <div class="card" style="text-align:center;">
-        <div style="font-size:0.85rem;">{{ m.home_team }} <strong>{{ m.score_display }}</strong> {{ m.away_team }}</div>
-        <div style="font-size:0.75rem;color:var(--dim);"><span class="badge ft">FT</span> Group {{ m.group or '?' }}</div>
+    <a href="/match/{{ m.match_id }}" class="link-reset">
+    <div class="card text-center">
+        <div class="text-sm">{{ m.home_team }} <strong>{{ m.score_display }}</strong> {{ m.away_team }}</div>
+        <div class="text-xs text-dim"><span class="badge ft">FT</span> Group {{ m.group or '?' }}</div>
     </div>
     </a>
     {% endfor %}
@@ -65,9 +65,9 @@
     <h2>📅 Upcoming</h2>
     <div class="grid-3">
     {% for m in scheduled[:6] %}
-    <div class="card" style="text-align:center;">
-        <div style="font-size:0.85rem;">{{ m.home_team }} <span style="color:var(--dim)">vs</span> {{ m.away_team }}</div>
-        <div style="font-size:0.75rem;color:var(--dim);">
+    <div class="card text-center">
+        <div class="text-sm">{{ m.home_team }} <span class="text-dim">vs</span> {{ m.away_team }}</div>
+        <div class="text-xs text-dim">
             <span class="badge upcoming">UPCOMING</span>
             {{ m.utc_date[:16] | replace('T', ' ') if m.utc_date else 'TBD' }}
         </div>
@@ -77,9 +77,9 @@
     {% endif %}
 
 {% else %}
-    <div class="card" style="text-align:center;padding:3rem;">
-        <p style="color:var(--dim);">No match data available.</p>
-        <p style="font-size:0.85rem;color:var(--dim);">
+    <div class="card empty-state">
+        <p class="text-dim">No match data available.</p>
+        <p class="text-sm text-dim">
             {% if has_api_key %}
             The API returned no matches. The tournament may not have started yet, or try refreshing.
             {% else %}
@@ -138,12 +138,12 @@
             <td>{{ t.name }}</td>
             <td>{{ t.elo | int }}</td>
             <td>{{ t.group }}</td>
-            <td style="color:var(--dim);">{{ t.confederation }}</td>
+            <td class="text-dim">{{ t.confederation }}</td>
         </tr>
         {% endfor %}
     </tbody>
 </table>
-<p style="margin-top:0.5rem;text-align:right;">
+<p class="view-all">
     <a href="/teams" style="color:var(--accent);font-size:0.85rem;">View all 48 teams →</a>
 </p>
 

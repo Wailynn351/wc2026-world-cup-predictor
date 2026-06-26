@@ -5,6 +5,7 @@ Implements JSON-RPC 2.0 over stdio (MCP protocol).
 Exposes tools: predict_match, list_all_teams, get_team_info, get_group.
 """
 
+import atexit
 import json
 import sys
 from pathlib import Path
@@ -20,11 +21,20 @@ SERVER_NAME = "wc2026-mcp"
 _logf = None  # Debug log file handle
 
 
+def _close_log() -> None:
+    """Close the debug log file on shutdown."""
+    global _logf
+    if _logf is not None:
+        _logf.close()
+        _logf = None
+
+
 def _log(msg: str) -> None:
     """Write debug messages to a log file (stderr is consumed by MCP)."""
     global _logf
     if _logf is None:
         _logf = open(Path(__file__).parent / "mcp_debug.log", "w")
+        atexit.register(_close_log)
     _logf.write(f"[MCP] {msg}\n")
     _logf.flush()
 

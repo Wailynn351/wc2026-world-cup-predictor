@@ -38,6 +38,7 @@ from wc2026.display import (
     standing_table,
     prediction_vs_actual_card,
     GREEN,
+    RED,
     CYAN,
     BOLD,
     RESET,

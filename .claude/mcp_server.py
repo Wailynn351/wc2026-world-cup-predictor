@@ -12,7 +12,7 @@ from pathlib import Path
 # Add parent dir to path so we can import wc2026
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
-from wc2026.data import load_teams, get_team_by_name, get_team_by_code, get_groups
+from wc2026.data import load_teams, get_team_by_name, get_team_by_code, get_groups, load_historical_matches
 from wc2026.predictor import predict as predict_match
 
 VERSION = "0.1.0"
@@ -173,9 +173,6 @@ def _tool_list_all_teams(args: dict) -> list[dict]:
 
 
 def _tool_get_team_info(args: dict) -> list[dict]:
-    from wc2026.data import load_historical_matches
-    from collections import defaultdict
-
     team = _resolve_team(args["team"])
     historical = load_historical_matches()
 

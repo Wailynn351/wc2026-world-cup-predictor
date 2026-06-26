@@ -11,7 +11,12 @@
 <h1>🏆 2026 World Cup Predictor</h1>
 <p class="subtitle">Elo-powered match predictions with live score integration.</p>
 
-{% if not has_api_key %}
+{% if static %}
+<div class="api-warning">
+    📊 <strong>Static site — live scores not available.</strong>
+    Predictions are powered by Elo ratings. Clone the repo and run <code>python -m wc2026 live</code> for live data.
+</div>
+{% elif not has_api_key %}
 <div class="api-warning">
     ⚠️ <strong>Live scores unavailable.</strong> To enable live match data, get a free API key from
     <a href="https://www.football-data.org/" style="color: var(--yellow);">football-data.org</a>
@@ -92,7 +97,7 @@
 <!-- Quick Predict -->
 <h2>⚡ Quick Predict</h2>
 <div class="card">
-    <form action="/predict" method="get" style="display:flex;gap:0.75rem;align-items:end;flex-wrap:wrap;">
+    <form action="{{ 'predict.html' if static else '/predict' }}" method="get" style="display:flex;gap:0.75rem;align-items:end;flex-wrap:wrap;">
         <div class="form-group">
             <label>Home Team</label>
             <select name="home" style="min-width:180px;">
@@ -144,7 +149,7 @@
     </tbody>
 </table>
 <p class="view-all">
-    <a href="/teams" style="color:var(--accent);font-size:0.85rem;">View all 48 teams →</a>
+    <a href="{{ 'teams.html' if static else '/teams' }}" style="color:var(--accent);font-size:0.85rem;">View all 48 teams →</a>
 </p>
 
 {% endblock %}

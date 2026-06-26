@@ -16,7 +16,7 @@
                 {{ loop.index }}
             </td>
             <td>
-                <a href="/predict?home={{ t.name | urlencode }}" style="color:inherit;text-decoration:none;">
+                <a href="{{ 'predict.html' if static else '/predict' }}?home={{ t.name | urlencode }}" style="color:inherit;text-decoration:none;">
                     {{ t.name }}
                 </a>
             </td>

@@ -6,10 +6,11 @@
 <p class="subtitle">Predict any match-up using Elo ratings and historical data.</p>
 
 <div class="card">
-    <form action="/predict" method="get" class="form-row">
+    <form id="predict-form" action="{{ '#' if static else '/predict' }}" method="get" class="form-row"
+          {% if static %}onsubmit="return runPrediction(event)"{% endif %}>
         <div class="form-group">
             <label>Home Team</label>
-            <select name="home" style="min-width:200px;">
+            <select name="home" id="home-select" style="min-width:200px;">
                 <option value="">Select team...</option>
                 {% for t in teams %}
                 <option value="{{ t.name }}" {% if home == t.name %}selected{% endif %}>
@@ -20,7 +21,7 @@
         </div>
         <div class="form-group">
             <label>Away Team</label>
-            <select name="away" style="min-width:200px;">
+            <select name="away" id="away-select" style="min-width:200px;">
                 <option value="">Select team...</option>
                 {% for t in teams %}
                 <option value="{{ t.name }}" {% if away == t.name %}selected{% endif %}>
@@ -31,7 +32,7 @@
         </div>
         <div class="form-group">
             <label>Stage</label>
-            <select name="stage">
+            <select name="stage" id="stage-select">
                 <option value="" {% if not stage %}selected{% endif %}>Group / Friendly</option>
                 <option value="round_of_16" {% if stage == 'round_of_16' %}selected{% endif %}>Round of 16</option>
                 <option value="quarterfinal" {% if stage == 'quarterfinal' %}selected{% endif %}>Quarterfinal</option>
@@ -43,14 +44,18 @@
     </form>
 </div>
 
+{% if not static %}
 {% if error %}
 <div class="card error-card">
     {{ error }}
 </div>
 {% endif %}
+{% endif %}
 
-{% if prediction %}
-<div class="card prediction-result">
+<div id="error-card" class="card error-card" style="display:none;"></div>
+
+{% if not static and prediction %}
+<div id="prediction-result" class="card prediction-result">
     <div class="text-dim" style="font-size:0.9rem;">
         Elo: {{ prediction.home_elo | int }} — {{ prediction.away_elo | int }}
     </div>
@@ -89,10 +94,12 @@
         {% if stage %}Knockout stage: reduced draw probability.{% endif %}
     </div>
 </div>
+{% else %}
+<div id="prediction-result" class="card prediction-result" style="display:none;"></div>
 {% endif %}
 
-<!-- Quick Swaps -->
-{% if prediction %}
+<!-- Quick Swaps (server-rendered for dynamic, hidden for static) -->
+{% if not static and prediction %}
 <h2>🔄 Related Matchups</h2>
 <div class="grid-3">
     <a href="/predict?home={{ prediction.away_team | urlencode }}&away={{ prediction.home_team | urlencode }}&stage={{ stage }}" class="card link-reset text-center">
@@ -110,4 +117,147 @@
 </div>
 {% endif %}
 
+{% endblock %}
+
+{% block scripts %}
+{% if static %}
+<script>
+// ── Elo Prediction Engine (ported from predictor.py) ────────────────
+const TEAMS = {{ teams_json | safe }};
+const TEAMS_MAP = {};
+TEAMS.forEach(t => { TEAMS_MAP[t.name] = t; TEAMS_MAP[t.code] = t; });
+
+const HOME_ADVANTAGE = 50;
+const ELO_SCALE = 400;
+const MAX_DRAW_PROB = 0.30;
+const DRAW_DECAY_SIGMA = 200;
+const MIN_DRAW_PROB = 0.05;
+const KNOCKOUT_DRAW_FACTOR = 0.65;
+const KNOCKOUT_STAGES = new Set(["round_of_16", "quarterfinal", "semifinal", "final"]);
+
+function eloWinProb(eloA, eloB, homeAdv) {
+    return 1.0 / (1.0 + Math.pow(10, (eloB - (eloA + homeAdv)) / ELO_SCALE));
+}
+
+function drawProb(eloGap, stage) {
+    const gap = Math.abs(eloGap);
+    let raw = MAX_DRAW_PROB * Math.exp(-(gap * gap) / (2 * DRAW_DECAY_SIGMA * DRAW_DECAY_SIGMA));
+    raw = Math.max(MIN_DRAW_PROB, raw);
+    if (stage && KNOCKOUT_STAGES.has(stage)) raw *= KNOCKOUT_DRAW_FACTOR;
+    return raw;
+}
+
+function confidence(eloGap) {
+    const gap = Math.abs(eloGap);
+    if (gap < 40) return "low";
+    if (gap < 120) return "medium";
+    return "high";
+}
+
+function predictMatch(home, away, stage) {
+    const eloA = home.elo, eloB = away.elo;
+    const gap = eloA - eloB;
+    const drawPct = drawProb(gap, stage);
+    const remaining = 1.0 - drawPct;
+    const homeShare = eloWinProb(eloA, eloB, HOME_ADVANTAGE);
+    const awayShare = 1.0 - homeShare;
+    const homeWin = homeShare * remaining;
+    const awayWin = awayShare * remaining;
+
+    let winner = null;
+    if (homeWin > awayWin && homeWin > drawPct) winner = home.name;
+    else if (awayWin > homeWin && awayWin > drawPct) winner = away.name;
+
+    return {
+        home_team: home.name, away_team: away.name,
+        home_elo: eloA, away_elo: eloB,
+        home_win_pct: homeWin, draw_pct: drawPct, away_win_pct: awayWin,
+        predicted_winner: winner, confidence: confidence(gap)
+    };
+}
+
+// ── UI ──────────────────────────────────────────────────────────────
+function fmt(pct) { return (pct * 100).toFixed(1) + '%'; }
+function pctInt(pct) { return Math.round(pct * 100); }
+
+function renderPrediction(p) {
+    const el = document.getElementById('prediction-result');
+    el.style.display = '';
+    el.innerHTML = `
+        <div class="text-dim" style="font-size:0.9rem;">
+            Elo: ${Math.round(p.home_elo)} — ${Math.round(p.away_elo)}
+        </div>
+        <div class="winner">${p.predicted_winner || 'Draw'}</div>
+        <div style="font-size:1.1rem;margin-bottom:0.5rem;">
+            ${p.home_team} vs ${p.away_team}
+        </div>
+        <div class="narrow-center">
+            <div class="bar-row">
+                <span class="label">${p.home_team}</span>
+                <div class="bar-track"><div class="bar-fill green" style="width:${pctInt(p.home_win_pct)}%;"></div></div>
+                <span>${fmt(p.home_win_pct)}</span>
+            </div>
+            <div class="bar-row">
+                <span class="label">Draw</span>
+                <div class="bar-track"><div class="bar-fill yellow" style="width:${pctInt(p.draw_pct)}%;"></div></div>
+                <span>${fmt(p.draw_pct)}</span>
+            </div>
+            <div class="bar-row">
+                <span class="label">${p.away_team}</span>
+                <div class="bar-track"><div class="bar-fill red" style="width:${pctInt(p.away_win_pct)}%;"></div></div>
+                <span>${fmt(p.away_win_pct)}</span>
+            </div>
+        </div>
+        <div class="confidence ${p.confidence}" style="margin-top:0.75rem;">
+            Confidence: ${p.confidence.toUpperCase()}
+        </div>
+        <div style="margin-top:1rem;" class="text-sm text-dim">
+            Based on Elo ratings. Home advantage: +50 Elo points.
+            ${document.getElementById('stage-select').value ? 'Knockout stage: reduced draw probability.' : ''}
+        </div>
+    `;
+}
+
+function runPrediction(e) {
+    e.preventDefault();
+    const homeName = document.getElementById('home-select').value;
+    const awayName = document.getElementById('away-select').value;
+    const stage = document.getElementById('stage-select').value;
+    const errEl = document.getElementById('error-card');
+
+    errEl.style.display = 'none';
+
+    if (!homeName || !awayName) {
+        errEl.textContent = 'Please select both teams.';
+        errEl.style.display = '';
+        return false;
+    }
+    if (homeName === awayName) {
+        errEl.textContent = 'Please select two different teams.';
+        errEl.style.display = '';
+        return false;
+    }
+
+    const home = TEAMS_MAP[homeName];
+    const away = TEAMS_MAP[awayName];
+    if (!home) { errEl.textContent = 'Team not found: ' + homeName; errEl.style.display = ''; return false; }
+    if (!away) { errEl.textContent = 'Team not found: ' + awayName; errEl.style.display = ''; return false; }
+
+    const result = predictMatch(home, away, stage || null);
+    renderPrediction(result);
+    return false;
+}
+
+// Auto-run if URL has query params (from index page quick predict)
+(function() {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get('home') && params.get('away')) {
+        document.getElementById('home-select').value = params.get('home');
+        document.getElementById('away-select').value = params.get('away');
+        if (params.get('stage')) document.getElementById('stage-select').value = params.get('stage');
+        document.getElementById('predict-form').dispatchEvent(new Event('submit'));
+    }
+})();
+</script>
+{% endif %}
 {% endblock %}

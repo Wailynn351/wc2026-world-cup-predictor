@@ -249,11 +249,10 @@
 </head>
 <body>
     <nav>
-        <a href="/" class="brand">⚽ WC2026</a>
-        <a href="/matches" class="{{ 'active' if request.url.path == '/matches' }}">Matches</a>
-        <a href="/groups" class="{{ 'active' if request.url.path == '/groups' }}">Groups</a>
-        <a href="/teams" class="{{ 'active' if request.url.path == '/teams' }}">Teams</a>
-        <a href="/predict" class="{{ 'active' if request.url.path == '/predict' }}">Predict</a>
+        <a href="{{ 'index.html' if static else '/' }}" class="brand">⚽ WC2026</a>
+        <a href="{{ 'groups.html' if static else '/groups' }}" class="{{ 'active' if request.url.path == '/groups' }}">Groups</a>
+        <a href="{{ 'teams.html' if static else '/teams' }}" class="{{ 'active' if request.url.path == '/teams' }}">Teams</a>
+        <a href="{{ 'predict.html' if static else '/predict' }}" class="{{ 'active' if request.url.path == '/predict' }}">Predict</a>
     </nav>
 
     <div class="container">

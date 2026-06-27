@@ -1,6 +1,6 @@
 # WC2026 — 2026 FIFA World Cup Match Predictor
 
-## Project Screenshots
+## Screenshots
 
 ![screenshots 1 - Home](https://github.com/Wailynn351/wc2026-world-cup-predictor/blob/main/screenshots/127.0.0.1_8080_.png)
 ![screenshots 2 - Group](https://github.com/Wailynn351/wc2026-world-cup-predictor/blob/main/screenshots/127.0.0.1_8080_groups.png)

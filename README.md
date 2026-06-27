@@ -2,12 +2,9 @@
 
 ## Project Screenshots
 
-![screenshot 1](screenshots/127.0.0.1_8080_.png)
-![screenshot 2](screenshots/127.0.0.1_8080_groups.png)
-![screenshot 3](screenshots/127.0.0.1_8080_matches.png)
-![screenshot 4](screenshots/127.0.0.1_8080_predict.png)
-![screenshot 5](screenshots/127.0.0.1_8080_teams.png)
-
+![screenshots 1 - Home](https://github.com/Wailynn351/wc2026-world-cup-predictor/blob/main/screenshots/127.0.0.1_8080_.png)
+![screenshots 2 - Group](https://github.com/Wailynn351/wc2026-world-cup-predictor/blob/main/screenshots/127.0.0.1_8080_groups.png)
+![screenshots 3 - Predict](https://github.com/Wailynn351/wc2026-world-cup-predictor/blob/main/screenshots/127.0.0.1_8080_predict.png)
 Predict match outcomes for the 2026 FIFA World Cup using real historical data and an Elo-based statistical model. Includes live score integration via a free football API and a built-in web UI.
 
 ## Quick Start
